@@ -5,11 +5,26 @@
 }
 
 main {
-    flex: 1;
+    flex: 1;    
+}
+
+.page {
+    background: linear-gradient(180deg, #E7F8D6, #a7f69c);
+    min-height: 100vh;
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    backdrop-filter: blur(25px);
+
+    background: linear-gradient(
+        180deg,
+        rgba(58, 90, 64, 0.45), 
+        rgba(58, 90, 64, 0.25)    
+    );
+
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
+
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
 }
 
 .top-row {
