@@ -1,0 +1,47 @@
+@page "/plant/{Id:int}"
+@inject NavigationManager Navigation
+@inject PlantService PlantService
+
+<h3>@plant?.Common_Name</h3>
+
+@if (plant == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="GoBackToGallery">
+            ← Back to Gallery
+     </button>
+    <div style="display: flex; gap: 20px; margin-top: 20px;">
+        <img src="@plant.Default_Image?.Medium_Url" alt="@plant.Common_Name" style="width:300px; border-radius: 10px;" />
+
+        <div>
+            <p><strong>Family:</strong> @plant.Family</p>
+            <p><strong>Type:</strong> @plant.Type</p>
+            <p><strong>Watering:</strong> @plant.Watering</p>
+            <p><strong>Sunlight:</strong> @string.Join(", ", plant.Sunlight)</p>
+            <p><strong>Maintenance:</strong> @plant.Maintenance</p>
+            <p><strong>Medicinal:</strong> @(plant.Medicinal ? "Yes" : "No")</p>
+            <p><strong>Poisonous to humans:</strong> @(plant.Poisonous_To_Humans ? "Yes" : "No")</p>
+            <p><strong>Description:</strong> @plant.Description</p>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PlantDetailsResponse? plant;
+
+    protected override async Task OnInitializedAsync()
+    {
+        plant = await PlantService.GetPlantDetailsAsync(Id);
+    }
+
+    private void GoBackToGallery()
+    {
+        Navigation.NavigateTo("/gallery");
+    }
+}
