@@ -1,10 +1,15 @@
 using Sunflower.Components;
+using DotNetEnv;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<PlantService>();
 
 var app = builder.Build();
 
