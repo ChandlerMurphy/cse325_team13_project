@@ -1,0 +1,14 @@
+@page "/logout"
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<h3>Logging out...</h3>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Clear any auth state/session if you implemented one
+        // For now, just navigate to login page
+        Nav.NavigateTo("/login", true);
+    }
+}

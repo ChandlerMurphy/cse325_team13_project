@@ -1,14 +1,58 @@
 @page "/dictionary"
+@* @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject IJSRuntime JS *@
 @rendermode InteractiveServer
+@* @attribute [Authorize] *@
 
 <PageTitle>Dictionary</PageTitle>
 
 <h1>Dictionary</h1>
 
-<p>This is the Dictionary Page. Body content will go in the Dictionary.razor file.</p>
+<p>This is the Flower Dictionary Page. Body content will go in the Dictionary.razor file.</p>
 
 
+
+@* @if (!isAuthorized)
+{
+    <p class="text-danger">You are not authorized. Redirecting to login...</p>
+}
+else
+{
+    <p>Welcome, @userName! You can now access the dictionary.</p>
+    <!-- Dictionary content goes here -->
+} *@
 
 @code {
+    @* private string? userName;
+    private bool isAuthorized = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Check authentication on page load
+        await CheckAuthAsync();
+    }
+
+    private async Task CheckAuthAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            userName = user.Identity.Name ?? user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value;
+            isAuthorized = true;
+        }
+        else
+        {
+            // Not authenticated: redirect to login after a short delay
+            isAuthorized = false;
+            StateHasChanged();
+            await Task.Delay(500); // small delay so user sees the message
+            Nav.NavigateTo("/login");
+        }
+    } *@
 }

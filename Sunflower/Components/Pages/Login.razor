@@ -1,14 +1,217 @@
 @page "/login"
+@using Sunflower.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IHttpClientFactory HttpClientFactory
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
-<PageTitle>Login</PageTitle>
+<h3>Login</h3>
 
-<h1>Login</h1>
+<div class="card p-3">
+    <input @bind="username" class="form-control mb-2" placeholder="Username" />
+    <input type="password" @bind="password" class="form-control mb-2" placeholder="Password" />
+    <button class="btn btn-primary" @onclick="LoginUserAsync">Login</button>
+</div>
 
-<p>This is the Login Page. Body content will go in the Login.razor file.</p>
+<div>
+    <p class="mt-2">
+        Don't have an account? 
+        <NavLink class="text-primary" href="/register">Register here</NavLink>
+    </p>
+</div>
 
-
+@if (!string.IsNullOrEmpty(error))
+{
+    <p class="text-danger">@error</p>
+}
 
 @code {
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string error = string.Empty;
 
+    private async Task LoginUserAsync()
+    {
+        error = string.Empty;
+
+        try
+        {
+            var loginRequest = new LoginRequest
+            {
+                Username = username,
+                Password = password
+            };
+
+            var client = HttpClientFactory.CreateClient("ServerAPI");
+            var response = await client.PostAsJsonAsync("api/auth/login", loginRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                error = "Invalid username or password.";
+                return;
+            }
+
+            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            if (loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
+            {
+                error = "Login failed: Invalid response from server.";
+                return;
+            }
+
+            // ✅ Store JWT token in localStorage
+            await JS.InvokeVoidAsync("localStorage.setItem", "jwtToken", loginResponse.Token);
+
+        // ✅ Update Blazor authentication state
+        AuthStateProvider.NotifyUserAuthentication(
+            new User
+            {
+                Username = loginResponse.Username,
+                Role = loginResponse.Role
+            }
+        );
+
+            // ✅ Redirect to home page
+            Nav.NavigateTo("/", forceLoad: true);
+            Nav.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            error = $"Login failed: {ex.Message}";
+        }
+    }
+
+    private class LoginRequest
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private class LoginResponse
+    {
+        public string Token { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+    }
 }
+
+
+
+
+@* 
+@page "/login"
+@using Sunflower.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IHttpClientFactory HttpClientFactory
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+
+<div class="card p-3">
+    <input @bind="username" class="form-control mb-2" placeholder="Username" />
+    <input type="password" @bind="password" class="form-control mb-2" placeholder="Password" />
+    <button class="btn btn-primary" @onclick="LoginUserAsync" disabled="@(!isInteractive)">Login</button>
+</div>
+
+<div>
+    <p class="mt-2">
+        Don't have an account? 
+        <NavLink class="text-primary" href="/register">Register here</NavLink>
+    </p>
+</div>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p class="text-danger">@error</p>
+}
+
+@code {
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string error = string.Empty;
+    private bool isInteractive = false;
+
+    // This ensures JSInterop is safe
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isInteractive = true;
+            StateHasChanged(); // Enable the button
+        }
+    }
+
+    private async Task LoginUserAsync()
+    {
+        error = string.Empty;
+
+        if (!isInteractive)
+        {
+            error = "Page is still loading. Please try again in a moment.";
+            return;
+        }
+
+        try
+        {
+            var loginRequest = new LoginRequest
+            {
+                Username = username,
+                Password = password
+            };
+
+            var client = HttpClientFactory.CreateClient("ServerAPI");
+            var response = await client.PostAsJsonAsync("api/auth/login", loginRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                error = "Invalid username or password.";
+                return;
+            }
+
+            var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            if (loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
+            {
+                error = "Login failed: Invalid response from server.";
+                return;
+            }
+
+            // ✅ Safe JSInterop: only now can we call localStorage
+            await JS.InvokeVoidAsync("localStorage.setItem", "jwtToken", loginResponse.Token);
+
+            // ✅ Update authentication state
+            AuthStateProvider.NotifyUserAuthentication(
+                new User
+                {
+                    Username = loginResponse.Username,
+                    Role = loginResponse.Role
+                }
+            );
+
+            // ✅ Navigate to home page
+            Nav.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            error = $"Login failed: {ex.Message}";
+        }
+    }
+
+    private class LoginRequest
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private class LoginResponse
+    {
+        public string Token { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+    }
+} *@
