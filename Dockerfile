@@ -1,5 +1,5 @@
 # Use official .NET SDK image for build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 # Copy the csproj and restore dependencies
@@ -13,7 +13,7 @@ COPY . .
 RUN dotnet publish ./Sunflower/Sunflower.csproj -c Release -o /app/out
 
 # Use the official runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
 # Copy the published output from the build stage
