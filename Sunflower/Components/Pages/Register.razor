@@ -1,0 +1,41 @@
+@page "/register"
+@inject AuthService AuthService
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<h3>Create an Account</h3>
+
+<div class="card p-3">
+    <input @bind="username" class="form-control mb-2" placeholder="Username" />
+    <input @bind="email" class="form-control mb-2" placeholder="Email" />
+    <input type="password" @bind="password" class="form-control mb-2" placeholder="Password" />
+    <button class="btn btn-primary" @onclick="RegisterUserAsync">Register</button>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+
+    string username = string.Empty;
+    string email = string.Empty;
+    string password = string.Empty;
+    string errorMessage = string.Empty;  // Or 'error' in Login.razor
+
+
+    private async Task RegisterUserAsync()
+    {
+        bool success = await AuthService.RegisterUser(username, email, password);
+
+        if (success)
+        {
+            Nav.NavigateTo("/login");
+        }
+        else
+        {
+            errorMessage = "Username already exists.";
+        }
+    }
+}
