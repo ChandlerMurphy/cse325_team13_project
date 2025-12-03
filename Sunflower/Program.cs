@@ -89,6 +89,7 @@ builder.Services.AddHttpContextAccessor();
 // Controllers
 // ==========================
 builder.Services.AddControllers();
+builder.Services.AddScoped<PlantService>();
 
 var app = builder.Build();
 

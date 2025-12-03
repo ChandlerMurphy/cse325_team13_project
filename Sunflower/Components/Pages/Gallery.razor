@@ -1,14 +1,72 @@
 @page "/gallery"
+@inject PlantService PlantService
+@inject NavigationManager Navigation
+
 @rendermode InteractiveServer
 
-<PageTitle>Gallery</PageTitle>
+<PageTitle>Plant Gallery</PageTitle>
 
-<h1>Gallery</h1>
+<h3>Plant Gallery</h3>
 
-<p>This is the Flower Gallery Page. Body content will go in the Gallery.razor file.</p>
+@if (plants == null)
+{
+    <p>Loading...</p>
+}
+else 
+{
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        @foreach (var plant in plants)
+        {
+            <div style="width: 150px; text-align: center; cursor:pointer;" 
+                 @ondblclick="() => NavigateToDetails(plant.Id)">
+                <img src="@plant.Default_Image?.Medium_Url" alt="@plant.Common_Name" 
+                     style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;" />
+                <p>@plant.Common_Name</p>
+            </div>
+        }
+    </div>
 
+    <div style="margin-top:20px;">
+        <button @onclick="PreviousPage" disabled="@(_currentPage == 1)">Previous</button>
+        <span>Page @_currentPage</span>
+        <button @onclick="NextPage" disabled="@plants.Count < 30">Next</button>
+    </div>
+}
 
 
 @code {
+    private List<PlantData> plants;
+    private int _currentPage = 1;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int page)
+    {
+        plants = await PlantService.GetPlantListAsync(page);
+        _currentPage = page;
+    }
+
+    private void NavigateToDetails(int id)
+    {
+        Navigation.NavigateTo($"/plant/{id}");
+    }
+
+    private async Task PreviousPage()
+    {
+        if (_currentPage > 1)
+        {
+            await LoadPage(_currentPage - 1);
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (plants.Count == 30)
+        {
+            await LoadPage(_currentPage + 1);
+        }
+    }
 }
