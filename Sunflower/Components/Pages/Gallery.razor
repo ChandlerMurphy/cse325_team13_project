@@ -4,9 +4,9 @@
 
 @rendermode InteractiveServer
 
-<PageTitle>Plant Gallery</PageTitle>
+<PageTitle>Flower Gallery</PageTitle>
 
-<h3>Plant Gallery</h3>
+<h3 class="gallery-title">Flower Gallery</h3>
 
 @if (plants == null)
 {
@@ -14,19 +14,26 @@
 }
 else 
 {
-    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    @* Plants cards displayed in a flexible grid  *@
+    <div class="gallery-container">
         @foreach (var plant in plants)
         {
-            <div style="width: 150px; text-align: center; cursor:pointer;" 
-                 @ondblclick="() => NavigateToDetails(plant.Id)">
-                <img src="@plant.Default_Image?.Medium_Url" alt="@plant.Common_Name" 
-                     style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;" />
-                <p>@plant.Common_Name</p>
+            <div class="plant-card" @onclick="() => NavigateToDetails(plant.Id)">
+                @* Image of the plant from the API *@
+                <img src="@(!string.IsNullOrWhiteSpace(plant.Default_Image?.Medium_Url) 
+                    ? plant.Default_Image.Medium_Url 
+                    : "/img/noImage.jpg")"
+                    
+                    alt="@plant.Common_Name"
+                    style="width:150px; height:150px; object-fit:cover; border-radius:10px;" />
+                @* Plant name with first letter of each word capitalized *@
+                <p>@CapitalizeName(plant.Common_Name)</p>
             </div>
         }
     </div>
 
-    <div style="margin-top:20px;">
+    @* Pagination Controls *@
+    <div class="pagination">
         <button @onclick="PreviousPage" disabled="@(_currentPage == 1)">Previous</button>
         <span>Page @_currentPage</span>
         <button @onclick="NextPage" disabled="@plants.Count < 30">Next</button>
@@ -40,17 +47,20 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // Load the first page when component initializes
         await LoadPage(_currentPage);
     }
 
     private async Task LoadPage(int page)
     {
+        // Get plant data from the service
         plants = await PlantService.GetPlantListAsync(page);
         _currentPage = page;
     }
 
     private void NavigateToDetails(int id)
     {
+        // Navigate to the details page for a specific plant
         Navigation.NavigateTo($"/plant/{id}");
     }
 
@@ -68,5 +78,20 @@ else
         {
             await LoadPage(_currentPage + 1);
         }
+    }
+
+    // Function to capitalize the first letter of each word
+    private string CapitalizeName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return "";
+
+        var words = name.Split(' ');
+        for (int i = 0; i < words.Length; i++)
+        {
+            if(words[i].Length > 0)
+                words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).ToLower();
+        }
+        return string.Join(' ', words);
     }
 }
