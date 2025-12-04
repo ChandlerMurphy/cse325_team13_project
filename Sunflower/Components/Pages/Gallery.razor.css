@@ -1,0 +1,47 @@
+.gallery-title {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+/* Layout Gallery */
+.gallery-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+
+/* Card */
+.plant-card {
+    border-radius: 12px;
+    padding: 10px;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Image */
+.plant-card img {
+    border-radius: 10px;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.plant-card:hover img {
+    opacity: 0.75;
+    transform: scale(1.04);
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
