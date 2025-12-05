@@ -1,14 +1,145 @@
-@page "/wishlist"
+@* @page "/wishlist"
+@inject WishlistService WishlistService
 @rendermode InteractiveServer
 
 <PageTitle>Wishlist</PageTitle>
 
-<h1>Wishlist</h1>
+<h1>Your Wishlist</h1>
 
-<p>This is the Wishlist Page. Body content will go in the Wishlist.razor file.</p>
+@if (wishlistItems == null)
+{
+    <p>Loading...</p>
+}
+else if (!wishlistItems.Any())
+{
+    <p>Your wishlist is empty.</p>
+}
+else
+{
+    <div class="wishlist-container">
+        @foreach (var item in wishlistItems)
+        {
+            <div class="wishlist-card">
+                <img src="@item.ImageUrl" alt="@item.Name" class="wishlist-image" />
 
+                <div class="wishlist-info">
+                    <h3>@item.Name</h3>
 
+                    <button class="delete-button" @onclick="() => DeleteItem(item)">
+                        ✖ Remove
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
 
 @code {
+    private List<WishlistItem>? wishlistItems;
 
+    protected override async Task OnInitializedAsync()
+    {
+        wishlistItems = await WishlistService.GetWishlistAsync();
+    }
+
+    private async Task DeleteItem(WishlistItem item)
+    {
+        if (item.Id == null)
+            return;
+
+        // Remove from DB
+        await WishlistService.DeleteWishlistItemAsync(item.Id);
+
+        // Remove from UI
+        wishlistItems!.Remove(item);
+
+        // Force UI refresh
+        StateHasChanged();
+    }
+} *@
+
+
+
+
+
+@page "/wishlist"
+@inject WishlistService WishlistService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Wishlist</PageTitle>
+
+<h1>Your Wishlist</h1>
+
+@if (isCheckingAuth)
+{
+    <p>Checking authentication...</p>
+}
+else if (!wishlistItems.Any())
+{
+    <p>Your wishlist is empty.</p>
+}
+else
+{
+    <div class="wishlist-container">
+        @foreach (var item in wishlistItems)
+        {
+            <div class="wishlist-card">
+                <img src="@item.ImageUrl" alt="@item.Name" class="wishlist-image" />
+
+                <div class="wishlist-info">
+                    <h3>@item.Name</h3>
+
+                    <button class="delete-button" @onclick="() => DeleteItem(item)">
+                        ✖ Remove
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<WishlistItem> wishlistItems = new();
+    private bool isCheckingAuth = true;
+    private bool hasCheckedAuth = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !hasCheckedAuth)
+        {
+            hasCheckedAuth = true;
+
+            // Check for token in local storage
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "SunflowerToken");
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                // No token found, redirect to login
+                Navigation.NavigateTo("/login", true);
+                return;
+            }
+
+            // Token exists, load wishlist
+            wishlistItems = await WishlistService.GetWishlistAsync();
+            isCheckingAuth = false;
+
+            StateHasChanged(); // Trigger UI update
+        }
+    }
+
+    private async Task DeleteItem(WishlistItem item)
+    {
+        if (item.Id == null)
+            return;
+
+        // Remove from DB
+        await WishlistService.DeleteWishlistItemAsync(item.Id);
+
+        // Remove from UI
+        wishlistItems.Remove(item);
+
+        StateHasChanged();
+    }
 }

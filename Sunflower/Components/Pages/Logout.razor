@@ -1,14 +1,30 @@
 @page "/logout"
-@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-<h3>Logging out...</h3>
+<PageTitle>Logout</PageTitle>
+
+<h2>Logout</h2>
+
+<p>Are you sure you want to logout?</p>
+
+<button class="logout-button" @onclick="ConfirmLogout">Yes, Logout</button>
+<button class="cancel-button" @onclick="CancelLogout">Cancel</button>
 
 @code {
-    protected override void OnInitialized()
+    private async Task ConfirmLogout()
     {
-        // Clear any auth state/session if you implemented one
-        // For now, just navigate to login page
-        Nav.NavigateTo("/login", true);
+        // Remove the token from local storage
+        await JS.InvokeVoidAsync("localStorage.removeItem", "SunflowerToken");
+
+        // Redirect to home page
+        Navigation.NavigateTo("/", true);
+    }
+
+    private void CancelLogout()
+    {
+        // Simply navigate back to home or previous page
+        Navigation.NavigateTo("/", true);
     }
 }
