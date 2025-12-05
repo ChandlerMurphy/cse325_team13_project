@@ -12,11 +12,30 @@
     cursor: pointer;
     margin-bottom: 15px;
     transition: background 0.2s ease, color 0.2s ease;
-
 }
 
 .back-button:hover {
     background-color: rgba(255, 255, 255, 0.4);
+}
+
+.wishlist-button {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.wishlist-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.wishlist-button[disabled] {
+    background-color: #4caf50 !important;
+    color: white;
+    cursor: not-allowed;
 }
 
 .plant-title {

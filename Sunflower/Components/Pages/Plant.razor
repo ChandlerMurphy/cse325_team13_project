@@ -2,7 +2,7 @@
 @using Sunflower.Helpers
 @inject NavigationManager Navigation
 @inject PlantService PlantService
-@inject FavoriteFlowersService FavoriteService
+@inject WishlistService WishlistService
 @rendermode InteractiveServer
 
 
@@ -51,6 +51,15 @@
                 @(FavoriteService.IsFavorite(plant.Id) ? "❤️" : "🤍")
             </button>
         </div>
+
+        @* <button class="wishlist-button" @onclick="AddToWishlist">
+            Add to Wishlist
+        </button> *@
+
+        <button class="wishlist-button" disabled="@isAdding"@onclick="AddToWishlist">
+            @buttonText
+        </button>
+
     }
 </div>
 
@@ -61,11 +70,6 @@
 
     private PlantDetailsResponse? plant;
 
-    void ToggleFavorite()
-    {
-        FavoriteService.ToggleFavorite(plant);
-    }
-
     protected override async Task OnInitializedAsync()
     {
         plant = await PlantService.GetPlantDetailsAsync(Id);
@@ -75,6 +79,74 @@
     private void GoBackToGallery()
     {
         Navigation.NavigateTo("/gallery");
+    }
+
+    // Function to capitalize the first letter of each word
+    private string CapitalizeName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return "";
+
+        var words = name.Split(' ');
+        for (int i = 0; i < words.Length; i++)
+        {
+            if(words[i].Length > 0)
+                words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).ToLower();
+        }
+        return string.Join(' ', words);
+    }
+
+    @* private async Task AddToWishlist()
+    {
+        if (plant == null)
+            return;
+
+        var wishlistItem = new WishlistItem
+        {
+            PlantId = plant.Id,
+            Name = plant.Common_Name,
+            ImageUrl = plant.Default_Image?.Medium_Url,
+            Family = plant.Family,
+            Type = plant.Type,
+            Watering = plant.Watering,
+            Sunlight = plant.Sunlight,
+            Maintenance = plant.Maintenance,
+            Medicinal = plant.Medicinal,
+            Poisonous_To_Humans = plant.Poisonous_To_Humans,
+            Description = plant.Description
+        };
+
+        await WishlistService.AddToWishlistAsync(wishlistItem);
+    } *@
+
+    private bool isAdding = false;
+    private string buttonText = "Add to Wishlist";
+
+    private async Task AddToWishlist()
+    {
+        if (plant == null)
+            return;
+
+        // Build wishlist item
+        var wishlistItem = new WishlistItem
+        {
+            PlantId = plant.Id,
+            Name = plant.Common_Name,
+            ImageUrl = plant.Default_Image?.Medium_Url
+        };
+
+        await WishlistService.AddToWishlistAsync(wishlistItem);
+
+        // Flash success message
+        isAdding = true;
+        buttonText = "✓ Added!";
+        StateHasChanged();
+
+        // Wait 1.5 seconds before resetting
+        await Task.Delay(1500);
+
+        buttonText = "Add to Wishlist";
+        isAdding = false;
     }
 
 }
