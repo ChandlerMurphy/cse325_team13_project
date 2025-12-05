@@ -62,7 +62,7 @@
             }
 
             // ✅ Store JWT token in localStorage
-            await JS.InvokeVoidAsync("localStorage.setItem", "jwtToken", loginResponse.Token);
+            await JS.InvokeVoidAsync("localStorage.setItem", "SunflowerToken", loginResponse.Token);
 
         // ✅ Update Blazor authentication state
         AuthStateProvider.NotifyUserAuthentication(

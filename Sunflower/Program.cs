@@ -27,6 +27,9 @@ builder.Services.Configure<MongoDbSettings>(options =>
 
 builder.Services.AddSingleton<MongoDbContext>();
 
+builder.Services.AddSingleton<WishlistService>();
+
+
 // ==========================
 // JWT Authentication
 // ==========================
