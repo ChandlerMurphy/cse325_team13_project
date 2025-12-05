@@ -47,9 +47,6 @@
                 <p><strong>Description:</strong></p>
                 <p class="plant-description">@plant.Description</p>
             </div>
-            <button @onclick="ToggleFavorite" style="background:none;border:none;font-size:28px;cursor:pointer">
-                @(FavoriteService.IsFavorite(plant.Id) ? "❤️" : "🤍")
-            </button>
         </div>
 
         @* <button class="wishlist-button" @onclick="AddToWishlist">
