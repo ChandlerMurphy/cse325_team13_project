@@ -1,14 +1,44 @@
 @page "/wishlist"
+@using Sunflower.Helpers
 @rendermode InteractiveServer
-
-<PageTitle>Wishlist</PageTitle>
-
-<h1>Wishlist</h1>
-
-<p>This is the Wishlist Page. Body content will go in the Wishlist.razor file.</p>
+@inject FavoriteFlowersService FavoriteService
+@inject NavigationManager Navigation
 
 
+<h2 class="wishlist-title">My Favorite Plants</h2>
+
+@if (FavoriteService.Favorites.Count == 0)
+{
+    <p>You don’t have any favorite plants yet.</p>
+}
+else
+{
+    <div class="wishlist-container">
+        @foreach (var plant in FavoriteService.Favorites)
+        {
+            <div class="wishlist-card" @onclick="() => NavigateToPlant(plant.Id)">
+                <img src="@GetImage(plant)" class="wishlist-image" />
+
+                <div class="wishlist-info">
+                    <h3>@CapitalizeHelper.CapitalizeName(plant.Common_Name)</h3>
+                    <p><strong>Maintenance:</strong> @plant.Maintenance</p>
+                </div>
+            </div>
+        }
+    </div>
+}
 
 @code {
+    void NavigateToPlant(int id)
+    {
+        Navigation.NavigateTo($"/plant/{id}");
+    }
+
+    string GetImage(PlantDetailsResponse plant)
+    {
+        return plant.Default_Image != null && !string.IsNullOrWhiteSpace(plant.Default_Image.Small_Url)
+            ? plant.Default_Image.Small_Url
+            : "/img/noImage.jpg";
+    }
 
 }

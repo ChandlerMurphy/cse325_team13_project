@@ -91,8 +91,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddScoped<PlantService>();
 
-var app = builder.Build();
 
+// ==========================
+// Favorite Flowers
+// ==========================
+builder.Services.AddSingleton<FavoriteFlowersService>();
+
+var app = builder.Build();
 // ==========================
 // Middleware
 // ==========================

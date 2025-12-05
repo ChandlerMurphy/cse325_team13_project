@@ -1,6 +1,8 @@
 @page "/plant/{Id:int}"
+@using Sunflower.Helpers
 @inject NavigationManager Navigation
 @inject PlantService PlantService
+@inject FavoriteFlowersService FavoriteService
 @rendermode InteractiveServer
 
 
@@ -20,7 +22,8 @@
         </button>
 
         @* Plant name as the main title *@
-        <h2 class="plant-title">@CapitalizeName(plant.Common_Name)</h2>
+
+        <h2>@CapitalizeHelper.CapitalizeName(plant.Common_Name)</h2>
 
         @* Main content of the page: image + information *@
         <div class="plant-details-content">
@@ -44,6 +47,9 @@
                 <p><strong>Description:</strong></p>
                 <p class="plant-description">@plant.Description</p>
             </div>
+            <button @onclick="ToggleFavorite" style="background:none;border:none;font-size:28px;cursor:pointer">
+                @(FavoriteService.IsFavorite(plant.Id) ? "❤️" : "🤍")
+            </button>
         </div>
     }
 </div>
@@ -54,6 +60,11 @@
     public int Id { get; set; }
 
     private PlantDetailsResponse? plant;
+
+    void ToggleFavorite()
+    {
+        FavoriteService.ToggleFavorite(plant);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,18 +77,4 @@
         Navigation.NavigateTo("/gallery");
     }
 
-    // Function to capitalize the first letter of each word
-    private string CapitalizeName(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return "";
-
-        var words = name.Split(' ');
-        for (int i = 0; i < words.Length; i++)
-        {
-            if(words[i].Length > 0)
-                words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).ToLower();
-        }
-        return string.Join(' ', words);
-    }
 }

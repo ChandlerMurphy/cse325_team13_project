@@ -1,4 +1,5 @@
 @page "/gallery"
+@using Sunflower.Helpers
 @inject PlantService PlantService
 @inject NavigationManager Navigation
 
@@ -27,7 +28,7 @@ else
                     alt="@plant.Common_Name"
                     style="width:150px; height:150px; object-fit:cover; border-radius:10px;" />
                 @* Plant name with first letter of each word capitalized *@
-                <p>@CapitalizeName(plant.Common_Name)</p>
+                <p>@CapitalizeHelper.CapitalizeName(plant.Common_Name)</p>
             </div>
         }
     </div>
@@ -78,20 +79,5 @@ else
         {
             await LoadPage(_currentPage + 1);
         }
-    }
-
-    // Function to capitalize the first letter of each word
-    private string CapitalizeName(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return "";
-
-        var words = name.Split(' ');
-        for (int i = 0; i < words.Length; i++)
-        {
-            if(words[i].Length > 0)
-                words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).ToLower();
-        }
-        return string.Join(' ', words);
     }
 }
